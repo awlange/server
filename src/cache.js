@@ -32,11 +32,11 @@ var Cache = (function () {
     this.css = css;
   };
 
-  Cache.prototype.setIndex = function(js) {
+  Cache.prototype.setJs = function(js) {
     this.js = js;
   };
 
-
+  return Cache;
 })();
 
 exports.Cache = Cache;

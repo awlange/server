@@ -4,6 +4,9 @@
  * Adrian Lange 12/2013
  */
 
+var logger = require("./logger"),
+    fs = require("fs");
+
 function simpleResponse(response, code, contentType, message) {
   response.writeHead(code, {"Content-Type": contentType});
   response.write(message);
@@ -39,3 +42,7 @@ function streamFileResponse(response, path, svgType) {
     return;
   });
 }
+
+exports.simpleResponse = simpleResponse;
+exports.textFileResponse = textFileResponse;
+exports.streamFileResponse = streamFileResponse;
