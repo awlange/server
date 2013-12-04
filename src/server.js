@@ -1,7 +1,15 @@
+/*
+ * Main server 
+ *
+ * Adrian Lange 12/2013
+ */
+
 var http = require("http"),
     fs = require("fs"),
     url = require("url"),
     logger = require("./logger"),
+    responder = require("./responder"),
+    cache = require("./cache"),
     port = process.argv[2] || 8888,
     basePath = process.argv[3] || "defaultPath";
 
@@ -14,78 +22,44 @@ var pathList = {
   "FAV": "/favicon.ico"
 };
 
-function simpleResponse(response, code, message) {
-  response.writeHead(code);
-  response.write(message);
-  response.end();
-  logger.log("Response: " + code);
-}
+/* 
+ * Instantiate cache for text files
+ */
+cache.setIndex(getTextFile(basePath + "/index.html"));
+cache.setCss(getTextFile(basePath + pathList["CSS"]));
+cache.setJs(getTextFile(basePath + pathList["JS"]));
 
-function getTextFile(filePath) {
-  return fs.readFileSync(filePath, "utf8", function(err, text) {
-    if (err) throw err;
-  }).toString();
-}
-
-function textFileResponse(response, contentType, path) {
-  response.writeHead(200, {"Content-Type": contentType});
-  response.write(getTextFile(path));
-  response.end();
-  logger.log("Response: 200");
-}
-
-function streamFileResponse(response, path, svgType) {
-  var stream = fs.createReadStream(path);
-  stream.on('error', function(err) {
-    response.writeHead(500);
-    response.end();
-    logger.log("Response: 500");
-    return;
-  });
-
-  if (svgType) {
-    // SVG files
-    response.writeHead(200, {"Content-Type": "image/svg+xml"});
-  } else {
-    response.writeHead(200);
-  }
-  stream.pipe(response);
-  stream.on('end', function() {
-    response.end();
-    return;
-  });
-}
-
+/*
+ * Create the server
+ */
 http.createServer(function(request, response) {
 
   var pathname = url.parse(request.url).pathname;
   logger.log("Request: " + request.httpVersion + " " + request.method + " " + pathname);
 
   // Only serve GET for specific files for now
-  // TODO: Add HEAD service
+  // TODO: Add HEAD service?
 
   if (request.method == 'GET') {
     if (pathname == pathList["HTML"]) {
-      // HTML
-      textFileResponse(response, "text/html", basePath + "/index.html");
+      //textFileResponse(response, "text/html", basePath + "/index.html");
+      responder.simpleResponse(response, 200, cache.getIndex(), "text/html");
     } else if (pathname == pathList["CSS"]) {
-      // CSS
-      textFileResponse(response, "text/css", basePath + pathList["CSS"]);
+      //textFileResponse(response, "text/css", basePath + pathList["CSS"]);
+      responder.simpleResponse(response, 200, cache.getCss(), "text/css");
     } else if (pathname == pathList["JS"]) {
-      // JS
-      textFileResponse(response, "application/javascript", basePath + pathList["JS"]);
-    } else if (pathname.match(pathList["IMG"])) {
-      // IMG
-      streamFileResponse(response, basePath + pathname, pathname.match(/(svg)$/i));
-    } else if (pathname.match(pathList["FILE"]) || pathname.match(pathList["FAV"])) {
-      // FILE or favicon
-      streamFileResponse(response, basePath + pathname, false);
+      //textFileResponse(response, "application/javascript", basePath + pathList["JS"]);
+      responder.simpleResponse(response, 200, cache.getJs(), "application/javascript");
+    } else if (pathname.match(pathList["IMG"]) ||
+               pathname.match(pathList["FILE"]) ||
+               pathname.match(pathList["FAV"])) {
+      responder.streamFileResponse(response, basePath + pathname, pathname.match(/(svg)$/i));
     } else {
-      simpleResponse(response, 404, "Not found.");
+      responder.simpleResponse(response, 404, "Not found.", "text/plain");
     }
   }
   else {
-    simpleResponse(response, 403, "Forbidden.");
+    responder.simpleResponse(response, 403, "Forbidden.", "text/plain");
   }
 
 }).listen(port);
