@@ -31,9 +31,10 @@ function getTextFile(filePath) {
   }).toString();
 }
 
-cache.setIndex(getTextFile(basePath + "/index.html"));
-cache.setCss(getTextFile(basePath + pathList["CSS"]));
-cache.setJs(getTextFile(basePath + pathList["JS"]));
+var fileCache = new cache.Cache();
+fileCache.setIndex(getTextFile(basePath + "/index.html"));
+fileCache.setCss(getTextFile(basePath + pathList["CSS"]));
+fileCache.setJs(getTextFile(basePath + pathList["JS"]));
 
 /*
  * Create the server
@@ -48,24 +49,21 @@ http.createServer(function(request, response) {
 
   if (request.method == 'GET') {
     if (pathname == pathList["HTML"]) {
-      //textFileResponse(response, "text/html", basePath + "/index.html");
-      responder.simpleResponse(response, 200, cache.getIndex(), "text/html");
+      responder.simpleResponse(response, 200, "text/html", fileCache.getIndex());
     } else if (pathname == pathList["CSS"]) {
-      //textFileResponse(response, "text/css", basePath + pathList["CSS"]);
-      responder.simpleResponse(response, 200, cache.getCss(), "text/css");
+      responder.simpleResponse(response, 200, "text/css", fileCache.getCss());
     } else if (pathname == pathList["JS"]) {
-      //textFileResponse(response, "application/javascript", basePath + pathList["JS"]);
-      responder.simpleResponse(response, 200, cache.getJs(), "application/javascript");
+      responder.simpleResponse(response, 200, "application/javascript", fileCache.getJs());
     } else if (pathname.match(pathList["IMG"]) ||
                pathname.match(pathList["FILE"]) ||
                pathname.match(pathList["FAV"])) {
       responder.streamFileResponse(response, basePath + pathname, pathname.match(/(svg)$/i));
     } else {
-      responder.simpleResponse(response, 404, "Not found.", "text/plain");
+      responder.simpleResponse(response, 404, "text/plain", "404: Not found.");
     }
   }
   else {
-    responder.simpleResponse(response, 403, "Forbidden.", "text/plain");
+    responder.simpleResponse(response, 403, "text/plain", "403: Forbidden.");
   }
 
 }).listen(port);
