@@ -11,12 +11,6 @@ function simpleResponse(response, code, contentType, message) {
   logger.log("Response: " + code);
 }
 
-function getTextFile(filePath) {
-  return fs.readFileSync(filePath, "utf8", function(err, text) {
-    if (err) throw err;
-  }).toString();
-}
-
 function textFileResponse(response, contentType, path) {
   response.writeHead(200, {"Content-Type": contentType});
   response.write(getTextFile(path));

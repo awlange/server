@@ -25,6 +25,12 @@ var pathList = {
 /* 
  * Instantiate cache for text files
  */
+function getTextFile(filePath) {
+  return fs.readFileSync(filePath, "utf8", function(err, text) {
+    if (err) throw err;
+  }).toString();
+}
+
 cache.setIndex(getTextFile(basePath + "/index.html"));
 cache.setCss(getTextFile(basePath + pathList["CSS"]));
 cache.setJs(getTextFile(basePath + pathList["JS"]));
