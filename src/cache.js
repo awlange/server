@@ -10,6 +10,8 @@ var Cache = (function () {
     this.index = "";
     this.css = "";
     this.js = "";
+    this.robots = "";
+    this.humans = "";
   };
 
   Cache.prototype.getIndex = function() {
@@ -24,6 +26,14 @@ var Cache = (function () {
     return this.js;
   };
 
+  Cache.prototype.getRobots = function() {
+    return this.robots;
+  };
+
+  Cache.prototype.getHumans = function() {
+    return this.humans;
+  };
+
   Cache.prototype.setIndex = function(index) {
     this.index = index;
   };
@@ -34,6 +44,14 @@ var Cache = (function () {
 
   Cache.prototype.setJs = function(js) {
     this.js = js;
+  };
+
+  Cache.prototype.setRobots = function(robots) {
+    this.robots = robots;
+  };
+
+  Cache.prototype.setHumans = function(humans) {
+    this.humans = humans;
   };
 
   return Cache;

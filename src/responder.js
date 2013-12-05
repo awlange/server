@@ -11,14 +11,12 @@ function simpleResponse(response, code, contentType, message) {
   response.writeHead(code, {"Content-Type": contentType});
   response.write(message);
   response.end();
-  logger.log("Response: " + code);
 }
 
 function textFileResponse(response, contentType, path) {
   response.writeHead(200, {"Content-Type": contentType});
   response.write(getTextFile(path));
   response.end();
-  logger.log("Response: 200");
 }
 
 function streamFileResponse(response, path, svgType) {

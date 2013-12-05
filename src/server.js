@@ -19,7 +19,9 @@ var pathList = {
   "JS": "/js/main.js",
   "IMG": /\/img\/+/,
   "FILE": /\/file\/+/,
-  "FAV": "/favicon.ico"
+  "FAV": "/favicon.ico",
+  "ROBOTS": "/robots.txt",
+  "HUMANS": "/humans.txt"
 };
 
 /* 
@@ -35,6 +37,8 @@ var fileCache = new cache.Cache();
 fileCache.setIndex(getTextFile(basePath + "/index.html"));
 fileCache.setCss(getTextFile(basePath + pathList["CSS"]));
 fileCache.setJs(getTextFile(basePath + pathList["JS"]));
+fileCache.setRobots(getTextFile(basePath + pathList["ROBOTS"]));
+fileCache.setHumans(getTextFile(basePath + pathList["HUMANS"]));
 
 /*
  * Create the server
@@ -42,7 +46,6 @@ fileCache.setJs(getTextFile(basePath + pathList["JS"]));
 http.createServer(function(request, response) {
 
   var pathname = url.parse(request.url).pathname;
-  logger.log("Request: " + request.httpVersion + " " + request.method + " " + pathname);
 
   // Only serve GET for specific files for now
   // TODO: Add HEAD service?
@@ -50,20 +53,32 @@ http.createServer(function(request, response) {
   if (request.method == 'GET') {
     if (pathname == pathList["HTML"]) {
       responder.simpleResponse(response, 200, "text/html", fileCache.getIndex());
+      logger.logReqResp(request, pathname, 200);
     } else if (pathname == pathList["CSS"]) {
       responder.simpleResponse(response, 200, "text/css", fileCache.getCss());
+      logger.logReqResp(request, pathname, 200);
     } else if (pathname == pathList["JS"]) {
       responder.simpleResponse(response, 200, "application/javascript", fileCache.getJs());
+      logger.logReqResp(request, pathname, 200);
+    } else if (pathname == pathList["ROBOTS"]) {
+      responder.simpleResponse(response, 200, "text/plain", fileCache.getRobots());
+      logger.logReqResp(request, pathname, 200);
+    } else if (pathname == pathList["HUMANS"]) {
+      responder.simpleResponse(response, 200, "text/plain", fileCache.getHumans());
+      logger.logReqResp(request, pathname, 200);
     } else if (pathname.match(pathList["IMG"]) ||
                pathname.match(pathList["FILE"]) ||
                pathname.match(pathList["FAV"])) {
       responder.streamFileResponse(response, basePath + pathname, pathname.match(/(svg)$/i));
+      logger.logReqResp(request, pathname, 200);
     } else {
       responder.simpleResponse(response, 404, "text/plain", "404: Not found.");
+      logger.logReqResp(request, pathname, 404);
     }
   }
   else {
     responder.simpleResponse(response, 403, "text/plain", "403: Forbidden.");
+    logger.logReqResp(request, pathname, 403);
   }
 
 }).listen(port);
