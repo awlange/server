@@ -95,8 +95,11 @@ http.createServer(function(request, response) {
       responder.simpleResponse(response, 404, "text/plain", "404: Not found.");
       logger.logReqResp(request, pathname, 404);
     }
-  }
-  else {
+
+  } else if (request.method == 'HEAD') {
+    responder.simpleResponse(response, 200, "text/html", "");
+    logger.logReqResp(request, pathname, 200);
+  } else {
     responder.simpleResponse(response, 403, "text/plain", "403: Forbidden.");
     logger.logReqResp(request, pathname, 403);
   }
