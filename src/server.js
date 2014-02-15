@@ -33,12 +33,13 @@ function getTextFile(filePath) {
   }).toString();
 }
 
-var fileCache = new cache.Cache();
-fileCache.setIndex(getTextFile(basePath + "/index.html"));
-fileCache.setCss(getTextFile(basePath + pathList["CSS"]));
-fileCache.setJs(getTextFile(basePath + pathList["JS"]));
-fileCache.setRobots(getTextFile(basePath + pathList["ROBOTS"]));
-fileCache.setHumans(getTextFile(basePath + pathList["HUMANS"]));
+var fileCache = {
+  "index": getTextFile(basePath + "/index.html"),
+  "css": getTextFile(basePath + pathList["CSS"]),
+  "js": getTextFile(basePath + pathList["JS"]),
+  "robots": getTextFile(basePath + pathList["ROBOTS"]),
+  "humans": getTextFile(basePath + pathList["HUMANS"])
+};
 
 /*
  * Create the server
@@ -52,19 +53,19 @@ http.createServer(function(request, response) {
 
   if (request.method == 'GET') {
     if (pathname == pathList["HTML"]) {
-      responder.simpleResponse(response, 200, "text/html", fileCache.getIndex());
+      responder.simpleResponse(response, 200, "text/html", fileCache["index"]);
       logger.logReqResp(request, pathname, 200);
     } else if (pathname == pathList["CSS"]) {
-      responder.simpleResponse(response, 200, "text/css", fileCache.getCss());
+      responder.simpleResponse(response, 200, "text/css", fileCache["css"]);
       logger.logReqResp(request, pathname, 200);
     } else if (pathname == pathList["JS"]) {
-      responder.simpleResponse(response, 200, "application/javascript", fileCache.getJs());
+      responder.simpleResponse(response, 200, "application/javascript", fileCache["js"]);
       logger.logReqResp(request, pathname, 200);
     } else if (pathname == pathList["ROBOTS"]) {
-      responder.simpleResponse(response, 200, "text/plain", fileCache.getRobots());
+      responder.simpleResponse(response, 200, "text/plain", fileCache["robots"]);
       logger.logReqResp(request, pathname, 200);
     } else if (pathname == pathList["HUMANS"]) {
-      responder.simpleResponse(response, 200, "text/plain", fileCache.getHumans());
+      responder.simpleResponse(response, 200, "text/plain", fileCache["humans"]);
       logger.logReqResp(request, pathname, 200);
     } else if (pathname.match(pathList["IMG"]) ||
                pathname.match(pathList["FILE"]) ||
