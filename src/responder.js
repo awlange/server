@@ -11,6 +11,7 @@ function simpleResponse(response, code, contentType, message) {
   response.writeHead(code, {"Content-Type": contentType});
   response.write(message);
   response.end();
+  return true;
 }
 
 function textFileResponse(response, contentType, path) {
@@ -19,26 +20,23 @@ function textFileResponse(response, contentType, path) {
   response.end();
 }
 
-function streamFileResponse(response, path, svgType) {
+function streamFileResponse(response, path) {
   var stream = fs.createReadStream(path);
-  stream.on('error', function(err) {
+  var error = stream.on('error', function(err) {
     response.writeHead(500);
     response.end();
     logger.log("Response: 500");
-    return;
+    return true;
   });
 
-  if (svgType) {
-    // SVG files
-    response.writeHead(200, {"Content-Type": "image/svg+xml"});
-  } else {
-    response.writeHead(200);
-  }
+  response.writeHead(200);
   stream.pipe(response);
-  stream.on('end', function() {
+  error = stream.on('end', function() {
     response.end();
-    return;
+    return false;
   });
+
+  return error;
 }
 
 exports.simpleResponse = simpleResponse;

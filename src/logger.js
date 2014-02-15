@@ -11,10 +11,10 @@ function log(message) {
 }
 
 function logReqResp(request, pathname, responseCode) {
-  console.log("[" + timestamp.timestamp() + "]  " +
+  console.log("[" + timestamp.timestamp() + "] " +
               " IP: " + request.connection.remoteAddress +
-              " HTTP: " + request.httpVersion + " " + request.method + " " + pathname +
-              " Response: " + responseCode);
+              " Response: " + responseCode +
+              " HTTP: " + request.httpVersion + " " + request.method + " " + pathname);
 }
 
 exports.log = log;
