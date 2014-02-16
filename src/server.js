@@ -5,82 +5,108 @@
  */
 
 var http = require("http"),
-    fs = require("fs"),
     url = require("url"),
+    textfile = require("./getTextFile"),
     logger = require("./logger"),
     responder = require("./responder"),
+    renderer = require("./renderer"),
     port = process.argv[2] || 8888,
     basePath = process.argv[3] || "defaultPath";
 
+/*
+ * Paths, all regexes
+ */
 var pathList = {
-  "HTML": "/",
-  "CSS": "/css/main.css",
-  "JS": "/js/main.js",
+  "HTML": /^(\/)$/,
+  "CSS": /^(\/css\/main.css)$/,
+  "JS": /^(\/js\/main.js)$/,
+  "BLOG": /^(\/blog)$/,
   "IMG": /\/img\/+/,
   "FILE": /\/file\/+/,
-  "FAV": "/favicon.ico",
-  "ROBOTS": "/robots.txt",
-  "HUMANS": "/humans.txt",
-  "icon-science": "/img/icon-science-small2.svg",
-  "icon-dev": "/img/icon-dev-small2.svg",
-  "icon-resume": "/img/icon-resume-small2.svg",
-  "icon-contact": "/img/icon-contact-small.svg"
+  "FAV": /^(\/favicon.ico)$/,
+  "ROBOTS": /^(\/robots.txt)$/,
+  "HUMANS": /^(\/humans.txt)$/,
+  "icon-science": /^(\/img\/icon-science-small2.svg)$/,
+  "icon-dev": /^(\/img\/icon-dev-small2.svg)$/,
+  "icon-resume": /^(\/img\/icon-resume-small2.svg)$/,
+  "icon-contact": /^(\/img\/icon-contact-small.svg)$/
 };
+
+var validPath = function(path) {
+  for (key in pathList) {
+    if (pathList[key].test(path)) {
+      return true;
+    }
+  }
+  return false;
+}
 
 /* 
  * Instantiate cache for text files
  */
-function getTextFile(filePath) {
-  return fs.readFileSync(filePath, "utf8", function(err, text) {
-    if (err) throw err;
-  }).toString();
-}
-
 var fileCache = {
-  "index": getTextFile(basePath + "/index.html"),
-  "css": getTextFile(basePath + pathList["CSS"]),
-  "js": getTextFile(basePath + pathList["JS"]),
-  "robots": getTextFile(basePath + pathList["ROBOTS"]),
-  "humans": getTextFile(basePath + pathList["HUMANS"]),
-  "icon-science": getTextFile(basePath + pathList["icon-science"]),
-  "icon-dev": getTextFile(basePath + pathList["icon-dev"]),
-  "icon-resume": getTextFile(basePath + pathList["icon-resume"]),
-  "icon-contact": getTextFile(basePath + pathList["icon-contact"])
+  "index": textfile.getTextFile(basePath + "index.html"),
+  "css": textfile.getTextFile(basePath + "css/main.css"),
+  "js": textfile.getTextFile(basePath + "js/main.js"),
+  "blogTmpl": textfile.getTextFile(basePath + "/blog/blogTmpl.html"),
+  "robots": textfile.getTextFile(basePath + "robots.txt"),
+  "humans": textfile.getTextFile(basePath + "humans.txt"),
+  "icon-science": textfile.getTextFile(basePath + "img/icon-science-small2.svg"),
+  "icon-dev": textfile.getTextFile(basePath + "img/icon-dev-small2.svg"),
+  "icon-resume": textfile.getTextFile(basePath + "img/icon-resume-small2.svg"),
+  "icon-contact": textfile.getTextFile(basePath + "img/icon-contact-small.svg")
 };
 
 /*
+ * Not found response function for convenience
+ */
+var notFound = function(response, request, pathname) {
+  responder.simpleResponse(response, 404, "text/plain", "404: Not found.");
+  logger.logReqResp(request, pathname, 404);
+}
+
+/*
  * Create the server
+ * 
+ * Only accepting GET and HEAD
  */
 http.createServer(function(request, response) {
 
   var pathname = url.parse(request.url).pathname;
 
-  // Only serve GET for specific files for now
-  // TODO: Add HEAD service?
-
   if (request.method == 'GET') {
+    // Catch bad paths here before going further
+    if (!validPath(pathname)) {
+      return notFound(response, request, pathname);
+    }
 
     found = false;
     fileError = false;
 
-    if (pathname == pathList["HTML"]) {
+    if (pathname.match(pathList["HTML"])) {
       found = responder.simpleResponse(response, 200, "text/html", fileCache["index"]);
-    } else if (pathname == pathList["CSS"]) {
+    } else if (pathname.match(pathList["CSS"])) {
       found = responder.simpleResponse(response, 200, "text/css", fileCache["css"]);
-    } else if (pathname == pathList["JS"]) {
+    } else if (pathname.match(pathList["JS"])) {
       found = responder.simpleResponse(response, 200, "application/javascript", fileCache["js"]);
-    } else if (pathname == pathList["ROBOTS"]) {
+    } else if (pathname.match(pathList["BLOG"])) {
+      renderResults = renderer.renderBlogPage(fileCache["blogTmpl"], pathname);
+      found = renderResults[0];
+      if (found) {
+        responder.simpleResponse(response, 200, "text/html", renderResults[1]);
+      }
+    } else if (pathname.match(pathList["ROBOTS"])) {
       found = responder.simpleResponse(response, 200, "text/plain", fileCache["robots"]);
-    } else if (pathname == pathList["HUMANS"]) {
+    } else if (pathname.match(pathList["HUMANS"])) {
       found = responder.simpleResponse(response, 200, "text/plain", fileCache["humans"]);
     } else if (pathname.match(pathList["IMG"]) && pathname.match(/(svg)$/i)) {
-      if (pathname == pathList["icon-science"]) {
+      if (pathname.match(pathList["icon-science"])) {
         found = responder.simpleResponse(response, 200, "image/svg+xml", fileCache["icon-science"]);
-      } else if (pathname == pathList["icon-dev"]) {
+      } else if (pathname.match(pathList["icon-dev"])) {
         found = responder.simpleResponse(response, 200, "image/svg+xml", fileCache["icon-dev"]);
-      } else if (pathname == pathList["icon-resume"]) {
+      } else if (pathname.match(pathList["icon-resume"])) {
         found = responder.simpleResponse(response, 200, "image/svg+xml", fileCache["icon-resume"]);
-      } else if (pathname == pathList["icon-contact"]) {
+      } else if (pathname.match(pathList["icon-contact"])) {
         found = responder.simpleResponse(response, 200, "image/svg+xml", fileCache["icon-contact"]);
       }
     } else if (pathname.match(pathList["IMG"]) ||
@@ -95,18 +121,25 @@ http.createServer(function(request, response) {
       if (found) {
         logger.logReqResp(request, pathname, 200);
       } else {
-        responder.simpleResponse(response, 404, "text/plain", "404: Not found.");
-        logger.logReqResp(request, pathname, 404);
+        notFound(response, request, pathname);
       }
     }
-
-  } else if (request.method == 'HEAD') {
-    responder.simpleResponse(response, 200, "text/html", "");
-    logger.logReqResp(request, pathname, 200);
-  } else {
-    responder.simpleResponse(response, 403, "text/plain", "403: Forbidden.");
-    logger.logReqResp(request, pathname, 403);
+    return;
   }
+
+  if (request.method == 'HEAD') {
+    if (pathname in pathList) {
+      responder.simpleResponse(response, 200, "text/html", "");
+      logger.logReqResp(request, pathname, 200);
+    } else {
+      notFound(response, request, pathname);
+    }
+    return;
+  }
+
+  // If not one of the above methods
+  responder.simpleResponse(response, 403, "text/plain", "403: Forbidden.");
+  logger.logReqResp(request, pathname, 403);
 
 }).listen(port);
 
