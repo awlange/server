@@ -13,6 +13,22 @@ var http = require("http"),
     port = process.argv[2] || 8888,
     basePath = process.argv[3] || "defaultPath";
 
+/* 
+ * Instantiate cache for text files
+ */
+var fileCache = {
+  "index": textfile.getTextFile(basePath + "index.html"),
+  "css": textfile.getTextFile(basePath + "css/main.css"),
+  "js": textfile.getTextFile(basePath + "js/main.js"),
+  "blogTmpl": textfile.getTextFile(basePath + "/blog/blogTmpl.html"),
+  "robots": textfile.getTextFile(basePath + "robots.txt"),
+  "humans": textfile.getTextFile(basePath + "humans.txt"),
+  "icon-science": textfile.getTextFile(basePath + "img/icon-science-small2.svg"),
+  "icon-dev": textfile.getTextFile(basePath + "img/icon-dev-small2.svg"),
+  "icon-resume": textfile.getTextFile(basePath + "img/icon-resume-small2.svg"),
+  "icon-contact": textfile.getTextFile(basePath + "img/icon-contact-small.svg")
+};
+
 /*
  * Paths, all regexes
  */
@@ -39,22 +55,6 @@ var validPath = function(path) {
     }
   }
   return false;
-}
-
-/* 
- * Instantiate cache for text files
- */
-var fileCache = {
-  "index": textfile.getTextFile(basePath + "index.html"),
-  "css": textfile.getTextFile(basePath + "css/main.css"),
-  "js": textfile.getTextFile(basePath + "js/main.js"),
-  "blogTmpl": textfile.getTextFile(basePath + "/blog/blogTmpl.html"),
-  "robots": textfile.getTextFile(basePath + "robots.txt"),
-  "humans": textfile.getTextFile(basePath + "humans.txt"),
-  "icon-science": textfile.getTextFile(basePath + "img/icon-science-small2.svg"),
-  "icon-dev": textfile.getTextFile(basePath + "img/icon-dev-small2.svg"),
-  "icon-resume": textfile.getTextFile(basePath + "img/icon-resume-small2.svg"),
-  "icon-contact": textfile.getTextFile(basePath + "img/icon-contact-small.svg")
 };
 
 /*
