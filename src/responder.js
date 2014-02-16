@@ -20,23 +20,23 @@ function textFileResponse(response, contentType, path) {
   response.end();
 }
 
-function streamFileResponse(response, path) {
+function streamFileResponse(response, path, fileError) {
   var stream = fs.createReadStream(path);
-  var error = stream.on('error', function(err) {
+  stream.on('error', function(err) {
     response.writeHead(500);
     response.end();
     logger.log("Response: 500");
-    return true;
+    fileError = true;
   });
 
   response.writeHead(200);
   stream.pipe(response);
-  error = stream.on('end', function() {
+  stream.on('end', function() {
     response.end();
-    return false;
+    fileError = false;
   });
 
-  return error;
+  return fileError;
 }
 
 exports.simpleResponse = simpleResponse;

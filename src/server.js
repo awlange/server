@@ -61,7 +61,7 @@ http.createServer(function(request, response) {
   if (request.method == 'GET') {
 
     found = false;
-    error = false;
+    fileError = false;
 
     if (pathname == pathList["HTML"]) {
       found = responder.simpleResponse(response, 200, "text/html", fileCache["index"]);
@@ -86,14 +86,18 @@ http.createServer(function(request, response) {
     } else if (pathname.match(pathList["IMG"]) ||
                pathname.match(pathList["FILE"]) ||
                pathname.match(pathList["FAV"])) {
-      error = responder.streamFileResponse(response, basePath + pathname);
+      fileError = responder.streamFileResponse(response, basePath + pathname);
+      found = true;
     }
 
-    if (found) {
-      logger.logReqResp(request, pathname, 200);
-    } else if (!error) {  // 500 errors should get responded and logged elsewhere
-      responder.simpleResponse(response, 404, "text/plain", "404: Not found.");
-      logger.logReqResp(request, pathname, 404);
+    if (!fileError) {
+      // 500 errors should get responded and logged elsewhere
+      if (found) {
+        logger.logReqResp(request, pathname, 200);
+      } else {
+        responder.simpleResponse(response, 404, "text/plain", "404: Not found.");
+        logger.logReqResp(request, pathname, 404);
+      }
     }
 
   } else if (request.method == 'HEAD') {
