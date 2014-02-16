@@ -20,13 +20,15 @@ var fileCache = {
   "index": textfile.getTextFile(basePath + "index.html"),
   "css": textfile.getTextFile(basePath + "css/main.css"),
   "js": textfile.getTextFile(basePath + "js/main.js"),
-  "blogTmpl": textfile.getTextFile(basePath + "/blog/blogTmpl.html"),
+  "blogCss": textfile.getTextFile(basePath + "css/blog.css"),
   "robots": textfile.getTextFile(basePath + "robots.txt"),
   "humans": textfile.getTextFile(basePath + "humans.txt"),
   "icon-science": textfile.getTextFile(basePath + "img/icon-science-small2.svg"),
   "icon-dev": textfile.getTextFile(basePath + "img/icon-dev-small2.svg"),
   "icon-resume": textfile.getTextFile(basePath + "img/icon-resume-small2.svg"),
-  "icon-contact": textfile.getTextFile(basePath + "img/icon-contact-small.svg")
+  "icon-contact": textfile.getTextFile(basePath + "img/icon-contact-small.svg"),
+  "blogTmpl": textfile.getTextFile(basePath + "blog/blogTmpl.html"),
+  "articleTmpl": textfile.getTextFile(basePath + "blog/articleTmpl.html")
 };
 
 /*
@@ -37,6 +39,7 @@ var pathList = {
   "CSS": /^(\/css\/main.css)$/,
   "JS": /^(\/js\/main.js)$/,
   "BLOG": /^(\/blog)$/,
+  "BLOGCSS": /^(\/css\/blog.css)$/,
   "IMG": /\/img\/+/,
   "FILE": /\/file\/+/,
   "FAV": /^(\/favicon.ico)$/,
@@ -90,11 +93,13 @@ http.createServer(function(request, response) {
     } else if (pathname.match(pathList["JS"])) {
       found = responder.simpleResponse(response, 200, "application/javascript", fileCache["js"]);
     } else if (pathname.match(pathList["BLOG"])) {
-      renderResults = renderer.renderBlogPage(fileCache["blogTmpl"], pathname);
+      renderResults = renderer.renderBlogPage(fileCache["blogTmpl"], fileCache["articleTmpl"], pathname);
       found = renderResults[0];
       if (found) {
         responder.simpleResponse(response, 200, "text/html", renderResults[1]);
       }
+    } else if (pathname.match(pathList["BLOGCSS"])) {
+      found = responder.simpleResponse(response, 200, "text/css", fileCache["blogCss"]);
     } else if (pathname.match(pathList["ROBOTS"])) {
       found = responder.simpleResponse(response, 200, "text/plain", fileCache["robots"]);
     } else if (pathname.match(pathList["HUMANS"])) {
