@@ -133,7 +133,7 @@ http.createServer(function(request, response) {
   }
 
   if (request.method == 'HEAD') {
-    if (pathname in pathList) {
+    if (validPath(pathname)) {
       responder.simpleResponse(response, 200, "text/html", "");
       logger.logReqResp(request, pathname, 200);
     } else {

@@ -14,7 +14,8 @@ function logReqResp(request, pathname, responseCode) {
   console.log("[" + timestamp.timestamp() + "] " +
               " IP: " + request.connection.remoteAddress +
               " Response: " + responseCode +
-              " HTTP: " + request.httpVersion + " " + request.method + " " + pathname);
+              " HTTP: " + request.httpVersion + " " + request.method + " " + pathname +
+              " Headers: " + request.headers);
 }
 
 exports.log = log;
