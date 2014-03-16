@@ -12,4 +12,11 @@ function getTextFile(filePath) {
   }).toString();
 }
 
+function getTextFileWithTrim(filePath) {
+  var str = getTextFile(filePath);
+  // Trim added carriage return
+  return str.substring(0, str.length-1)
+}
+
 exports.getTextFile = getTextFile;
+exports.getTextFileWithTrim = getTextFileWithTrim;

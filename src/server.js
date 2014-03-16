@@ -16,48 +16,53 @@ var http = require("http"),
 /* 
  * Instantiate cache for text files
  */
-var fileCache = {
+var cache = {
   "index": textfile.getTextFile(basePath + "index.html"),
   "css": textfile.getTextFile(basePath + "css/main.css"),
   "js": textfile.getTextFile(basePath + "js/main.js"),
-  "blogCss": textfile.getTextFile(basePath + "css/blog.css"),
   "robots": textfile.getTextFile(basePath + "robots.txt"),
   "humans": textfile.getTextFile(basePath + "humans.txt"),
+  "icon-home": textfile.getTextFile(basePath + "img/icon-home-small2.svg"),
   "icon-science": textfile.getTextFile(basePath + "img/icon-science-small2.svg"),
   "icon-dev": textfile.getTextFile(basePath + "img/icon-dev-small2.svg"),
   "icon-resume": textfile.getTextFile(basePath + "img/icon-resume-small2.svg"),
   "icon-contact": textfile.getTextFile(basePath + "img/icon-contact-small.svg"),
   "blogTmpl": textfile.getTextFile(basePath + "blog/blogTmpl.html"),
-  "articleTmpl": textfile.getTextFile(basePath + "blog/articleTmpl.html")
+  "articleTmpl": textfile.getTextFile(basePath + "blog/articleTmpl.html"),
+  "summaryTmpl": textfile.getTextFile(basePath + "blog/summaryTmpl.html")
 };
+
+var pathList = [
+  [/^(\/)$/, "INDEX"],
+  [/^(\/blog)/, "BLOG"],
+  [/^(\/css\/main.css)$/, "CSS"],
+  [/^(\/js\/main.js)$/, "JS"],
+  [/\/img\/.+(?=.svg)/, "SVG"],
+  [/\/img\/.+/, "IMG"],
+  [/\/file\/.+/, "FILE"],
+  [/^(\/favicon.ico)$/, "FAV"],
+  [/^(\/robots.txt)$/, "ROBOTS"],
+  [/^(\/humans.txt)$/, "HUMANS"]
+];
+
+var svgList = [
+  [/^(\/img\/icon-home-small2.svg)$/, "icon-home"],
+  [/^(\/img\/icon-science-small2.svg)$/, "icon-science"],
+  [/^(\/img\/icon-dev-small2.svg)$/, "icon-dev"],
+  [/^(\/img\/icon-resume-small2.svg)$/, "icon-resume"],
+  [/^(\/img\/icon-contact-small.svg)$/, "icon-contact"]
+];
 
 /*
- * Paths, all regexes
+ * Get key for matching path regex, or return not found
  */
-var pathList = {
-  "HTML": /^(\/)$/,
-  "CSS": /^(\/css\/main.css)$/,
-  "JS": /^(\/js\/main.js)$/,
-  "BLOG": /^(\/blog)$/,
-  "BLOGCSS": /^(\/css\/blog.css)$/,
-  "IMG": /\/img\/+/,
-  "FILE": /\/file\/+/,
-  "FAV": /^(\/favicon.ico)$/,
-  "ROBOTS": /^(\/robots.txt)$/,
-  "HUMANS": /^(\/humans.txt)$/,
-  "icon-science": /^(\/img\/icon-science-small2.svg)$/,
-  "icon-dev": /^(\/img\/icon-dev-small2.svg)$/,
-  "icon-resume": /^(\/img\/icon-resume-small2.svg)$/,
-  "icon-contact": /^(\/img\/icon-contact-small.svg)$/
-};
-
-var validPath = function(path) {
-  for (key in pathList) {
-    if (pathList[key].test(path)) {
-      return true;
+var getKeyFromList = function(list, path) {
+  for (i=0; i < list.length; i++) {
+    if (list[i][0].test(path)) {
+      return list[i][1];
     }
   }
-  return false;
+  return "NOT_FOUND"
 };
 
 /*
@@ -77,72 +82,70 @@ http.createServer(function(request, response) {
 
   var pathname = url.parse(request.url).pathname;
 
+  // --- HEAD --- //
+  if (request.method == 'HEAD') {
+    if (getKeyFromList(pathList, pathname) === "NOT_FOUND") {
+      notFound(response, request, pathname);
+    } else {
+      responder.simpleResponse(response, 200, "text/html", "");
+      logger.logReqResp(request, pathname, 200);
+    }
+    return;
+  }
+
+  // --- GET --- //
   if (request.method == 'GET') {
+    var pathKey = getKeyFromList(pathList, pathname);
     // Catch bad paths here before going further
-    if (!validPath(pathname)) {
+    if (pathKey === "NOT_FOUND") {
       return notFound(response, request, pathname);
     }
 
-    found = false;
-    fileError = false;
-
-    if (pathname.match(pathList["HTML"])) {
-      found = responder.simpleResponse(response, 200, "text/html", fileCache["index"]);
-    } else if (pathname.match(pathList["CSS"])) {
-      found = responder.simpleResponse(response, 200, "text/css", fileCache["css"]);
-    } else if (pathname.match(pathList["JS"])) {
-      found = responder.simpleResponse(response, 200, "application/javascript", fileCache["js"]);
-    } else if (pathname.match(pathList["BLOG"])) {
-      renderResults = renderer.renderBlogPage(fileCache["blogTmpl"], fileCache["articleTmpl"], pathname);
-      found = renderResults[0];
-      if (found) {
-        responder.simpleResponse(response, 200, "text/html", renderResults[1]);
-      }
-    } else if (pathname.match(pathList["BLOGCSS"])) {
-      found = responder.simpleResponse(response, 200, "text/css", fileCache["blogCss"]);
-    } else if (pathname.match(pathList["ROBOTS"])) {
-      found = responder.simpleResponse(response, 200, "text/plain", fileCache["robots"]);
-    } else if (pathname.match(pathList["HUMANS"])) {
-      found = responder.simpleResponse(response, 200, "text/plain", fileCache["humans"]);
-    } else if (pathname.match(pathList["IMG"]) && pathname.match(/(svg)$/i)) {
-      if (pathname.match(pathList["icon-science"])) {
-        found = responder.simpleResponse(response, 200, "image/svg+xml", fileCache["icon-science"]);
-      } else if (pathname.match(pathList["icon-dev"])) {
-        found = responder.simpleResponse(response, 200, "image/svg+xml", fileCache["icon-dev"]);
-      } else if (pathname.match(pathList["icon-resume"])) {
-        found = responder.simpleResponse(response, 200, "image/svg+xml", fileCache["icon-resume"]);
-      } else if (pathname.match(pathList["icon-contact"])) {
-        found = responder.simpleResponse(response, 200, "image/svg+xml", fileCache["icon-contact"]);
-      }
-    } else if (pathname.match(pathList["IMG"]) ||
-               pathname.match(pathList["FILE"]) ||
-               pathname.match(pathList["FAV"])) {
-      fileError = responder.streamFileResponse(response, basePath + pathname);
-      found = true;
-    }
-
-    if (!fileError) {
-      // 500 errors should get responded and logged elsewhere
-      if (found) {
-        logger.logReqResp(request, pathname, 200);
-      } else {
+    switch (pathKey) {
+      case "INDEX":
+        //responder.simpleResponse(response, 200, "text/html", cache["index"]);
+        renderer.renderIndexPage(response, request, cache);
+        break;
+      case "BLOG":
+        renderer.renderBlogPage(response, request, cache["blogTmpl"], cache["articleTmpl"], pathname);
+        return;
+      case "CSS":
+        responder.simpleResponse(response, 200, "text/css", cache["css"]);
+        break;
+      case "JS":
+        responder.simpleResponse(response, 200, "application/javascript", cache["js"]);
+        break;
+      case "ROBOTS":
+        responder.simpleResponse(response, 200, "text/plain", cache["robots"]);
+        break;
+      case "HUMANS":
+        responder.simpleResponse(response, 200, "text/plain", cache["humans"]);
+        break;
+      case "IMG":
+        responder.streamFileResponse(response, basePath + pathname);
+        break;
+      case "FILE":
+        responder.streamFileResponse(response, basePath + pathname);
+        break;
+      case "FAV":
+        responder.streamFileResponse(response, basePath + pathname);
+        break;
+      case "SVG":
+        var svgKey = getKeyFromList(svgList, pathname);
+        if (svgKey !== "NOT_FOUND") {
+          responder.simpleResponse(response, 200, "image/svg+xml", cache[svgKey]);
+        }
+        break;
+      default:
         notFound(response, request, pathname);
-      }
+        return;
     }
+
+    logger.logReqResp(request, pathname, 200);
     return;
   }
 
-  if (request.method == 'HEAD') {
-    if (validPath(pathname)) {
-      responder.simpleResponse(response, 200, "text/html", "");
-      logger.logReqResp(request, pathname, 200);
-    } else {
-      notFound(response, request, pathname);
-    }
-    return;
-  }
-
-  // If not one of the above methods
+  // --- Invalid HTTP method --- //
   responder.simpleResponse(response, 403, "text/plain", "403: Forbidden.");
   logger.logReqResp(request, pathname, 403);
 
