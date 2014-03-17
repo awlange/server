@@ -27,13 +27,17 @@ var cache = {
   "icon-dev": textfile.getTextFile(basePath + "img/icon-dev-small2.svg"),
   "icon-resume": textfile.getTextFile(basePath + "img/icon-resume-small2.svg"),
   "icon-contact": textfile.getTextFile(basePath + "img/icon-contact-small.svg"),
+  "icon-blog": textfile.getTextFile(basePath + "img/icon-blog-small2.svg"),
+  "icon-archive": textfile.getTextFile(basePath + "img/icon-archive-small2.svg"),
   "blogTmpl": textfile.getTextFile(basePath + "blog/blogTmpl.html"),
   "articleTmpl": textfile.getTextFile(basePath + "blog/articleTmpl.html"),
-  "summaryTmpl": textfile.getTextFile(basePath + "blog/summaryTmpl.html")
+  "summaryTmpl": textfile.getTextFile(basePath + "blog/summaryTmpl.html"),
+  "archiveTmpl": textfile.getTextFile(basePath + "blog/archiveTmpl.html")
 };
 
 var pathList = [
   [/^(\/)$/, "INDEX"],
+  [/^(\/blog\/archive)$/, "ARCHIVE"],
   [/^(\/blog)/, "BLOG"],
   [/^(\/css\/main.css)$/, "CSS"],
   [/^(\/js\/main.js)$/, "JS"],
@@ -50,7 +54,9 @@ var svgList = [
   [/^(\/img\/icon-science-small2.svg)$/, "icon-science"],
   [/^(\/img\/icon-dev-small2.svg)$/, "icon-dev"],
   [/^(\/img\/icon-resume-small2.svg)$/, "icon-resume"],
-  [/^(\/img\/icon-contact-small.svg)$/, "icon-contact"]
+  [/^(\/img\/icon-contact-small.svg)$/, "icon-contact"],
+  [/^(\/img\/icon-blog-small2.svg)$/, "icon-blog"],
+  [/^(\/img\/icon-archive-small2.svg)$/, "icon-archive"]
 ];
 
 /*
@@ -103,11 +109,13 @@ http.createServer(function(request, response) {
 
     switch (pathKey) {
       case "INDEX":
-        //responder.simpleResponse(response, 200, "text/html", cache["index"]);
         renderer.renderIndexPage(response, request, cache);
         break;
+      case "ARCHIVE":
+        renderer.renderArchivePage(response, request, cache, pathname);
+        return;
       case "BLOG":
-        renderer.renderBlogPage(response, request, cache["blogTmpl"], cache["articleTmpl"], pathname);
+        renderer.renderBlogPage(response, request, cache, pathname);
         return;
       case "CSS":
         responder.simpleResponse(response, 200, "text/css", cache["css"]);

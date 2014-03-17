@@ -60,7 +60,7 @@ function getEntryIdFromPathname(pathname) {
  *  Otherwise, use the entry_id from the path.
  *  If entry id is not a positive integer or out of range, return not found.
  */
-function renderBlogPage(response, request, blogTmpl, articleTmpl, pathname) {
+function renderBlogPage(response, request, cache, pathname) {
   var page = "RENDER_NOT_FOUND";  // default, changed below on success
 
   var mysqlQuery;
@@ -92,9 +92,9 @@ function renderBlogPage(response, request, blogTmpl, articleTmpl, pathname) {
         "date": split_date[0],
         "body": row.body
       };
-      articles.push(renderArticle(articleTmpl, content));
+      articles.push(renderArticle(cache["articleTmpl"], content));
     }
-    page = renderArticlesPage(blogTmpl, articles);
+    page = renderArticlesPage(cache["blogTmpl"], articles);
     renderResponse(response, request, pathname, page);
   });
 }
@@ -129,6 +129,45 @@ function renderIndexPage(response, request, cache) {
     page = renderSummariesPage(indexTmpl, summaries);
     cache["index"] = page;
     renderResponse(response, request, "/", page);
+  });
+}
+
+
+/*
+ * Render the archive page for the blog. Just a listing of all summaries for now.
+ */
+function renderArchivePage(response, request, cache, pathname) {
+  var page = "RENDER_NOT_FOUND";  // default, changed below on success
+  console.log("rendering archive page...");
+
+  var mysqlQuery = "SELECT * FROM blog.entries ORDER BY date DESC";
+
+  connection.query(mysqlQuery, function(err, rows, fields) {
+    if (err) throw err;
+
+    // If no rows, not found. Possibly from deleted old entry.
+    if (rows.length === 0) {
+      renderResponse(response, request, pathname, page);
+      return;
+    }
+
+    var summaries = [];
+    var summaryTmpl = cache["summaryTmpl"];
+
+    for (var i=0; i<rows.length; i++) {
+      var row = rows[i];
+      var split_date = row.date.toString().split("00:00:00");  // split to only get the day/month/year
+      var content = {
+        "entry_id": row.entry_id,
+        "title": row.title,
+        "date": split_date[0],
+        "summary": row.summary
+      };
+      summaries.push(renderSummary(summaryTmpl, content));
+    }
+
+    page = renderSummariesPage(cache["archiveTmpl"], summaries);
+    renderResponse(response, request, pathname, page);
   });
 }
 
@@ -179,3 +218,4 @@ function renderResponse(response, request, pathname, page) {
 
 exports.renderBlogPage = renderBlogPage;
 exports.renderIndexPage = renderIndexPage;
+exports.renderArchivePage = renderArchivePage;
