@@ -5,6 +5,7 @@
  */
 
 var http = require("http"),
+    fs = require("fs"),
     url = require("url"),
     textfile = require("./getTextFile"),
     logger = require("./logger"),
@@ -16,6 +17,7 @@ var http = require("http"),
 /* 
  * Instantiate cache for text files
  */
+logger.log("Loading text file cache...")
 var cache = {
   "index": textfile.getTextFile(basePath + "index.html"),
   "css": textfile.getTextFile(basePath + "css/main.css"),
@@ -33,6 +35,53 @@ var cache = {
   "articleTmpl": textfile.getTextFile(basePath + "blog/articleTmpl.html"),
   "summaryTmpl": textfile.getTextFile(basePath + "blog/summaryTmpl.html"),
   "archiveTmpl": textfile.getTextFile(basePath + "blog/archiveTmpl.html")
+};
+
+/*
+ * Instantiate cache for image files
+ */
+logger.log("Loading image file cache...")
+var image_cache = {
+  "/img/FMO-MS-RMD_TOC.png": {
+    "img": fs.readFileSync(basePath + "img/FMO-MS-RMD_TOC.png"),
+    "content-type": "image/png"
+  },
+  "/img/LinkedIn_icon.png": {
+    "img": fs.readFileSync(basePath + "img/LinkedIn_icon.png"),
+    "content-type": "image/png"
+  },
+  "/img/PE_level_3.png": {
+    "img": fs.readFileSync(basePath + "img/PE_level_3.png"),
+    "content-type": "image/png"
+  },
+  "/img/PE_proof_75.png": {
+    "img": fs.readFileSync(basePath + "img/PE_proof_75.png"),
+    "content-type": "image/png"
+  },
+  "/img/ade2orbital.png": {
+    "img": fs.readFileSync(basePath + "img/ade2orbital.png"),
+    "content-type": "image/png"
+  },
+  "/img/eqDESMO.png": {
+    "img": fs.readFileSync(basePath + "img/eqDESMO.png"),
+    "content-type": "image/png"
+  },
+  "/img/genetic.png": {
+    "img": fs.readFileSync(basePath + "img/genetic.png"),
+    "content-type": "image/png"
+  },
+  "/img/scalingGraph.png": {
+    "img": fs.readFileSync(basePath + "img/scalingGraph.png"),
+    "content-type": "image/png"
+  },
+  "/img/Qchem-logo.gif": {
+    "img": fs.readFileSync(basePath + "img/Qchem-logo.gif"),
+    "content-type": "image/gif"
+  },
+  "/img/BuiltInChicago_icon.jpg": {
+    "img": fs.readFileSync(basePath + "img/BuiltInChicago_icon.jpg"),
+    "content-type": "image/jpg"
+  }
 };
 
 var pathList = [
@@ -130,7 +179,7 @@ http.createServer(function(request, response) {
         responder.simpleResponse(response, 200, "text/plain", cache["humans"]);
         break;
       case "IMG":
-        responder.streamFileResponse(response, basePath + pathname);
+        responder.imageFileResponse(response, basePath, pathname, image_cache);
         break;
       case "FILE":
         responder.streamFileResponse(response, basePath + pathname);

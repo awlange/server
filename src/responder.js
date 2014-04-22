@@ -39,6 +39,16 @@ function streamFileResponse(response, path, fileError) {
   return fileError;
 }
 
+function imageFileResponse(response, basePath, pathname, cache) {
+  if (!(pathname in cache)) {
+    streamFileResponse(response, basePath + pathname);
+    return;
+  }
+  response.writeHead(200, {"Content-Type": cache[pathname]["content-type"]});
+  response.end(cache[pathname]["img"], "binary");
+}
+
 exports.simpleResponse = simpleResponse;
 exports.textFileResponse = textFileResponse;
 exports.streamFileResponse = streamFileResponse;
+exports.imageFileResponse = imageFileResponse;
