@@ -15,7 +15,8 @@ function logReqResp(request, pathname, responseCode) {
               " IP: " + request.connection.remoteAddress +
               " Response: " + responseCode +
               " HTTP: " + request.httpVersion + " " + request.method + " " + pathname +
-              "  |  User-Agent: " + request.headers['user-agent']);
+              "  |  User-Agent: " + request.headers['user-agent'] +
+              "  |  Referrer: " + request.headers['referer']);
 }
 
 exports.log = log;
