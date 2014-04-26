@@ -54,8 +54,8 @@ var image_cache = {
     "img": fs.readFileSync(basePath + "img/PE_level_3.png"),
     "content-type": "image/png"
   },
-  "/img/PE_proof_75.png": {
-    "img": fs.readFileSync(basePath + "img/PE_proof_75.png"),
+  "/img/PE_proof_80.png": {
+    "img": fs.readFileSync(basePath + "img/PE_proof_80.png"),
     "content-type": "image/png"
   },
   "/img/ade2orbital.png": {
