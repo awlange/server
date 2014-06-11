@@ -22,6 +22,7 @@ var cache = {
   "index": textfile.getTextFile(basePath + "index.html"),
   "css": textfile.getTextFile(basePath + "css/main.css"),
   "js": textfile.getTextFile(basePath + "js/main.js"),
+  "jquery": textfile.getTextFile(basePath + "js/vendor/jquery-1.11.1.min.js"),
   "robots": textfile.getTextFile(basePath + "robots.txt"),
   "humans": textfile.getTextFile(basePath + "humans.txt"),
   "icon-home": textfile.getTextFile(basePath + "img/icon-home-small2.svg"),
@@ -90,6 +91,7 @@ var pathList = [
   [/^(\/blog)/, "BLOG"],
   [/^(\/css\/main.css)$/, "CSS"],
   [/^(\/js\/main.js)$/, "JS"],
+  [/^(\/js\/vendor\/jquery-1.11.1.min.js)$/, "JQUERY"],
   [/\/img\/.+(?=.svg)/, "SVG"],
   [/\/img\/.+/, "IMG"],
   [/\/file\/.+/, "FILE"],
@@ -171,6 +173,9 @@ http.createServer(function(request, response) {
         break;
       case "JS":
         responder.simpleResponse(response, 200, "application/javascript", cache["js"]);
+        break;
+      case "JQUERY":
+        responder.simpleResponse(response, 200, "application/javascript", cache["jquery"]);
         break;
       case "ROBOTS":
         responder.simpleResponse(response, 200, "text/plain", cache["robots"]);
