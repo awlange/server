@@ -138,7 +138,6 @@ function renderIndexPage(response, request, cache) {
  */
 function renderArchivePage(response, request, cache, pathname) {
   var page = "RENDER_NOT_FOUND";  // default, changed below on success
-  console.log("rendering archive page...");
 
   var mysqlQuery = "SELECT * FROM blog.entries ORDER BY date DESC";
 
