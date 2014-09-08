@@ -2,133 +2,65 @@
  * Main server 
  *
  * Adrian Lange 12/2013
+ *
+ * Example startup command:
+ * node server.js 8888 /base/path/where/stuff/is
  */
 
 var http = require("http"),
     fs = require("fs"),
     url = require("url"),
-    textfile = require("./getTextFile"),
+    utils = require("./utils"),
     logger = require("./logger"),
     responder = require("./responder"),
     renderer = require("./renderer"),
+    cacher = require("./cacher")
     port = process.argv[2] || 8888,
     basePath = process.argv[3] || "defaultPath";
+
+/*
+ * Set up /file and /file/papers directory
+ */
+responder.initFileList(basePath);
 
 /* 
  * Instantiate cache for text files
  */
-logger.log("Loading text file cache...")
-var cache = {
-  "index": textfile.getTextFile(basePath + "index.html"),
-  "css": textfile.getTextFile(basePath + "css/main.css"),
-  "js": textfile.getTextFile(basePath + "js/main.js"),
-  "jquery": textfile.getTextFile(basePath + "js/vendor/jquery-1.11.1.min.js"),
-  "robots": textfile.getTextFile(basePath + "robots.txt"),
-  "humans": textfile.getTextFile(basePath + "humans.txt"),
-  "icon-home": textfile.getTextFile(basePath + "img/icon-home-small2.svg"),
-  "icon-science": textfile.getTextFile(basePath + "img/icon-science-small2.svg"),
-  "icon-dev": textfile.getTextFile(basePath + "img/icon-dev-small2.svg"),
-  "icon-resume": textfile.getTextFile(basePath + "img/icon-resume-small2.svg"),
-  "icon-contact": textfile.getTextFile(basePath + "img/icon-contact-small.svg"),
-  "icon-blog": textfile.getTextFile(basePath + "img/icon-blog-small2.svg"),
-  "icon-archive": textfile.getTextFile(basePath + "img/icon-archive-small2.svg"),
-  "blogTmpl": textfile.getTextFile(basePath + "blog/blogTmpl.html"),
-  "articleTmpl": textfile.getTextFile(basePath + "blog/articleTmpl.html"),
-  "summaryTmpl": textfile.getTextFile(basePath + "blog/summaryTmpl.html"),
-  "archiveTmpl": textfile.getTextFile(basePath + "blog/archiveTmpl.html")
-};
+var cache = cacher.loadTextFileCache(basePath);
 
 /*
  * Instantiate cache for image files
  */
-logger.log("Loading image file cache...")
-var image_cache = {
-  "/img/FMO-MS-RMD_TOC.png": {
-    "img": fs.readFileSync(basePath + "img/FMO-MS-RMD_TOC.png"),
-    "content-type": "image/png"
-  },
-  "/img/LinkedIn_icon.png": {
-    "img": fs.readFileSync(basePath + "img/LinkedIn_icon.png"),
-    "content-type": "image/png"
-  },
-  "/img/PE_level_3.png": {
-    "img": fs.readFileSync(basePath + "img/PE_level_3.png"),
-    "content-type": "image/png"
-  },
-  "/img/PE_proof_80.png": {
-    "img": fs.readFileSync(basePath + "img/PE_proof_80.png"),
-    "content-type": "image/png"
-  },
-  "/img/ade2orbital.png": {
-    "img": fs.readFileSync(basePath + "img/ade2orbital.png"),
-    "content-type": "image/png"
-  },
-  "/img/eqDESMO.png": {
-    "img": fs.readFileSync(basePath + "img/eqDESMO.png"),
-    "content-type": "image/png"
-  },
-  "/img/genetic.png": {
-    "img": fs.readFileSync(basePath + "img/genetic.png"),
-    "content-type": "image/png"
-  },
-  "/img/scalingGraph.png": {
-    "img": fs.readFileSync(basePath + "img/scalingGraph.png"),
-    "content-type": "image/png"
-  },
-  "/img/Qchem-logo.gif": {
-    "img": fs.readFileSync(basePath + "img/Qchem-logo.gif"),
-    "content-type": "image/gif"
-  },
-  "/img/BuiltInChicago_icon.jpg": {
-    "img": fs.readFileSync(basePath + "img/BuiltInChicago_icon.jpg"),
-    "content-type": "image/jpg"
-  }
-};
+var image_cache = cacher.loadImgFileCache(basePath);
 
+/*
+ * Path regex to alias
+ */
 var pathList = [
   [/^(\/)$/, "INDEX"],
   [/^(\/blog\/archive)$/, "ARCHIVE"],
   [/^(\/blog)/, "BLOG"],
-  [/^(\/css\/main.css)$/, "CSS"],
-  [/^(\/js\/main.js)$/, "JS"],
+  [/^(\/css\/main\.css)$/, "CSS"],
+  [/^(\/js\/main\.js)$/, "JS"],
   [/^(\/js\/vendor\/jquery-1.11.1.min.js)$/, "JQUERY"],
-  [/\/img\/.+(?=.svg)/, "SVG"],
+  [/\/img\/.+(?=\.svg)/, "SVG"],
   [/\/img\/.+/, "IMG"],
   [/\/file\/.+/, "FILE"],
-  [/^(\/favicon.ico)$/, "FAV"],
-  [/^(\/robots.txt)$/, "ROBOTS"],
-  [/^(\/humans.txt)$/, "HUMANS"]
+  [/^(\/favicon\.ico)$/, "FAV"],
+  [/^(\/robots\.txt)$/, "ROBOTS"],
+  [/^(\/humans\.txt)$/, "HUMANS"]
 ];
 
 var svgList = [
-  [/^(\/img\/icon-home-small2.svg)$/, "icon-home"],
-  [/^(\/img\/icon-science-small2.svg)$/, "icon-science"],
-  [/^(\/img\/icon-dev-small2.svg)$/, "icon-dev"],
-  [/^(\/img\/icon-resume-small2.svg)$/, "icon-resume"],
-  [/^(\/img\/icon-contact-small.svg)$/, "icon-contact"],
-  [/^(\/img\/icon-blog-small2.svg)$/, "icon-blog"],
-  [/^(\/img\/icon-archive-small2.svg)$/, "icon-archive"]
+  [/^(\/img\/icon-home-small2\.svg)$/, "icon-home"],
+  [/^(\/img\/icon-science-small2\.svg)$/, "icon-science"],
+  [/^(\/img\/icon-dev-small2\.svg)$/, "icon-dev"],
+  [/^(\/img\/icon-resume-small2\.svg)$/, "icon-resume"],
+  [/^(\/img\/icon-contact-small\.svg)$/, "icon-contact"],
+  [/^(\/img\/icon-blog-small2\.svg)$/, "icon-blog"],
+  [/^(\/img\/icon-archive-small2\.svg)$/, "icon-archive"]
 ];
 
-/*
- * Get key for matching path regex, or return not found
- */
-var getKeyFromList = function(list, path) {
-  for (i=0; i < list.length; i++) {
-    if (list[i][0].test(path)) {
-      return list[i][1];
-    }
-  }
-  return "NOT_FOUND"
-};
-
-/*
- * Not found response function for convenience
- */
-var notFound = function(response, request, pathname) {
-  responder.simpleResponse(response, 404, "text/plain", "404: Not found.");
-  logger.logReqResp(request, pathname, 404);
-}
 
 /*
  * Create the server
@@ -138,11 +70,11 @@ var notFound = function(response, request, pathname) {
 http.createServer(function(request, response) {
 
   var pathname = url.parse(request.url).pathname;
-
+ 
   // --- HEAD --- //
   if (request.method == 'HEAD') {
-    if (getKeyFromList(pathList, pathname) === "NOT_FOUND") {
-      notFound(response, request, pathname);
+    if (utils.getKeyFromList(pathList, pathname) === "NOT_FOUND") {
+      responder.notFound(response, request, pathname);
     } else {
       responder.simpleResponse(response, 200, "text/html", "");
       logger.logReqResp(request, pathname, 200);
@@ -152,10 +84,10 @@ http.createServer(function(request, response) {
 
   // --- GET --- //
   if (request.method == 'GET') {
-    var pathKey = getKeyFromList(pathList, pathname);
+    var pathKey = utils.getKeyFromList(pathList, pathname);
     // Catch bad paths here before going further
     if (pathKey === "NOT_FOUND") {
-      return notFound(response, request, pathname);
+      return responder.notFound(response, request, pathname);
     }
 
     switch (pathKey) {
@@ -187,19 +119,19 @@ http.createServer(function(request, response) {
         responder.imageFileResponse(response, basePath, pathname, image_cache);
         break;
       case "FILE":
-        responder.streamFileResponse(response, basePath + pathname);
+        responder.streamFileResponse(response, request, basePath + pathname);
         break;
       case "FAV":
-        responder.streamFileResponse(response, basePath + pathname);
+        responder.streamFileResponse(response, request, basePath + pathname);
         break;
       case "SVG":
-        var svgKey = getKeyFromList(svgList, pathname);
+        var svgKey = utils.getKeyFromList(svgList, pathname);
         if (svgKey !== "NOT_FOUND") {
           responder.simpleResponse(response, 200, "image/svg+xml", cache[svgKey]);
         }
         break;
       default:
-        notFound(response, request, pathname);
+        responder.notFound(response, request, pathname);
         return;
     }
 
@@ -208,10 +140,10 @@ http.createServer(function(request, response) {
   }
 
   // --- Invalid HTTP method --- //
-  responder.simpleResponse(response, 403, "text/plain", "403: Forbidden.");
-  logger.logReqResp(request, pathname, 403);
+  responder.forbidden(response, request, pathname);
 
 }).listen(port);
+
 
 logger.log("Server started listening on port: " + port);
 logger.log("Using base path = " + basePath);
