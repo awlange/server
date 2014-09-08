@@ -94,7 +94,6 @@ http.createServer(function(request, response) {
     if (pathKey === "NOT_FOUND") {
       return responder.notFound(response, request, pathname);
     }
-    console.log(pathKey);
 
     switch (pathKey) {
       case "INDEX":
