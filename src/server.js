@@ -18,6 +18,8 @@ var http = require("http"),
     port = process.argv[2] || 8888,
     basePath = process.argv[3] || "defaultPath";
 
+logger.log("Using base path = " + basePath);
+
 /*
  * Set up /file and /file/papers directory
  */
@@ -48,7 +50,8 @@ var pathList = [
   [/\/file\/.+/, "FILE"],
   [/^(\/favicon\.ico)$/, "FAV"],
   [/^(\/robots\.txt)$/, "ROBOTS"],
-  [/^(\/humans\.txt)$/, "HUMANS"]
+  [/^(\/humans\.txt)$/, "HUMANS"],
+  [/^(\/nav)$/, "NAV"]
 ];
 
 var svgList = [
@@ -69,7 +72,9 @@ var svgList = [
  */
 http.createServer(function(request, response) {
 
-  var pathname = url.parse(request.url).pathname;
+  var parsed_url = url.parse(request.url);
+  var pathname = parsed_url.pathname;
+  var query = parsed_url.query;
  
   // --- HEAD --- //
   if (request.method == 'HEAD') {
@@ -89,6 +94,7 @@ http.createServer(function(request, response) {
     if (pathKey === "NOT_FOUND") {
       return responder.notFound(response, request, pathname);
     }
+    console.log(pathKey);
 
     switch (pathKey) {
       case "INDEX":
@@ -128,7 +134,12 @@ http.createServer(function(request, response) {
         var svgKey = utils.getKeyFromList(svgList, pathname);
         if (svgKey !== "NOT_FOUND") {
           responder.simpleResponse(response, 200, "image/svg+xml", cache[svgKey]);
+        } else {
+          responder.notFound(response, request, pathname);
         }
+        break;
+      case "NAV":
+        responder.navResponse(response, query);
         break;
       default:
         responder.notFound(response, request, pathname);
@@ -146,4 +157,3 @@ http.createServer(function(request, response) {
 
 
 logger.log("Server started listening on port: " + port);
-logger.log("Using base path = " + basePath);

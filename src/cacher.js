@@ -33,7 +33,7 @@ function loadTextFileCache(basePath) {
 }
 
 function getImageType(img) {
-  if (/(?=\.svg)/.test(img)) {
+  if (/(?=\.png)/.test(img)) {
     return "image/png";
   }
   if (/(?=\.gif)/.test(img)) {
@@ -48,16 +48,21 @@ function getImageType(img) {
 function loadImgFileCache(basePath) {
   // load all images in the /img path
   logger.log("Loading image file cache...");
-  img_cache = {};
+  var img_cache = {};
   fs.readdir(basePath + "/img", function(err, imgs) {
     for (var i = 0; i < imgs.length; i++) {
-      img = imgs[i];
-      imgPath = "/img/" + img
-      img_cache[imgPath] = {
-      	"img": fs.readFileSync(basePath + imgPath),
-      	"content-type": getImageType(img)
-      };
+      var img = imgs[i];
+      var imgPath = "/img/" + img;
+      var type = getImageType(img);
+      if (type != "ERROR") {
+      	img_cache[imgPath] = {
+      		"img": fs.readFileSync(basePath + imgPath),
+      		"content-type": type
+      	};
+      }
     }
+    console.log("Image cache:");
+    console.log(img_cache);
   });
 	return img_cache;
 }

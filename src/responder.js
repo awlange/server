@@ -9,21 +9,21 @@ var logger = require("./logger"),
     fs = require("fs");
 
 // Attempt to list contents of /file and store in memory.
-fileList = []
+var fileList = []
 function initFileList(basePath) { 
   // Add favicon because it's not in the /file directory
   fileList.push(basePath + "/favicon.ico");
 
   fs.readdir(basePath + "/file", function(err, files) {
     for (var i = 0; i < files.length; i++) {
-      file = files[i];
+      var file = files[i];
       if (file != "papers") {
         fileList.push(basePath + "/file/" + file);
       }
     }
     fs.readdir(basePath + "/file/papers", function(err, files) {
       for (var i = 0; i < files.length; i++) {
-        file = files[i];
+        var file = files[i];
         fileList.push(basePath + "/file/papers/" + file);
       }
       console.log("File list:");
@@ -75,15 +75,25 @@ function imageFileResponse(response, basePath, pathname, cache) {
 }
 
 /*
+ * Nav click logging
+ */
+function navResponse(response, query) {
+  logger.log("Nav click: " + query);
+  response.writeHead(204);
+  response.end();
+  return true;
+}
+
+/*
  * Convenience functions
  */
-var notFound = function(response, request, pathname) {
+function notFound(response, request, pathname) {
   simpleResponse(response, 404, "text/html", 
       "<html><body><p>404: Not found.</p></body></html>");
   logger.logReqResp(request, pathname, 404);
 }
 
-var forbidden = function(response, request, pathname) {
+function forbidden(response, request, pathname) {
   simpleResponse(response, 403, "text/html", 
       "<html><body><p>403: Forbidden.</p></body></html>");
   logger.logReqResp(request, pathname, 403);
@@ -95,5 +105,6 @@ exports.simpleResponse = simpleResponse;
 exports.textFileResponse = textFileResponse;
 exports.streamFileResponse = streamFileResponse;
 exports.imageFileResponse = imageFileResponse;
+exports.navResponse = navResponse;
 exports.notFound = notFound;
 exports.forbidden = forbidden;
