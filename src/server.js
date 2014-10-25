@@ -75,7 +75,7 @@ http.createServer(function(request, response) {
   var parsed_url = url.parse(request.url);
   var pathname = parsed_url.pathname;
   var query = parsed_url.query;
- 
+
   // --- HEAD --- //
   if (request.method == 'HEAD') {
     if (utils.getKeyFromList(pathList, pathname) === "NOT_FOUND") {

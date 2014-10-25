@@ -10,7 +10,7 @@ var logger = require("./logger"),
 
 // Attempt to list contents of /file and store in memory.
 var fileList = []
-function initFileList(basePath) { 
+function initFileList(basePath) {
   // Add favicon because it's not in the /file directory
   fileList.push(basePath + "/favicon.ico");
 
@@ -66,7 +66,8 @@ function streamFileResponse(response, request, path) {
 }
 
 function imageFileResponse(response, basePath, pathname, cache) {
-  if (!(pathname in cache)) {
+  //if (!(pathname in cache)) {
+  if (!cache.hasOwnProperty(pathname)) {
     notFound(response, request, pathname);
     return;
   }
@@ -88,13 +89,13 @@ function navResponse(response, query) {
  * Convenience functions
  */
 function notFound(response, request, pathname) {
-  simpleResponse(response, 404, "text/html", 
+  simpleResponse(response, 404, "text/html",
       "<html><body><p>404: Not found.</p></body></html>");
   logger.logReqResp(request, pathname, 404);
 }
 
 function forbidden(response, request, pathname) {
-  simpleResponse(response, 403, "text/html", 
+  simpleResponse(response, 403, "text/html",
       "<html><body><p>403: Forbidden.</p></body></html>");
   logger.logReqResp(request, pathname, 403);
 }
