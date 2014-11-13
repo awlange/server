@@ -47,6 +47,8 @@ function textFileResponse(response, contentType, path) {
 
 function streamFileResponse(response, request, path) {
   if (!utils.isElementInArray(path, fileList)) {
+    request = request || {};
+    path = path || "";
     notFound(response, request, path);
     return;
   }
@@ -68,6 +70,8 @@ function streamFileResponse(response, request, path) {
 function imageFileResponse(response, basePath, pathname, cache) {
   //if (!(pathname in cache)) {
   if (!cache.hasOwnProperty(pathname)) {
+    request = request || {};
+    path = path || "";
     notFound(response, request, pathname);
     return;
   }
