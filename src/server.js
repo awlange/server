@@ -121,7 +121,7 @@ http.createServer(function(request, response) {
         responder.simpleResponse(response, 200, "text/plain", cache["humans"]);
         break;
       case "IMG":
-        responder.imageFileResponse(response, basePath, pathname, image_cache);
+        responder.imageFileResponse(response, request, basePath, pathname, image_cache);
         break;
       case "FILE":
         responder.streamFileResponse(response, request, basePath + pathname);
