@@ -67,7 +67,7 @@ function streamFileResponse(response, request, path) {
   });
 }
 
-function imageFileResponse(response, basePath, pathname, cache) {
+function imageFileResponse(response, request, basePath, pathname, cache) {
   //if (!(pathname in cache)) {
   if (!cache.hasOwnProperty(pathname)) {
     request = request || {};
