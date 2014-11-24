@@ -70,8 +70,8 @@ function streamFileResponse(response, request, path) {
 function imageFileResponse(response, basePath, pathname, cache) {
   //if (!(pathname in cache)) {
   if (!cache.hasOwnProperty(pathname)) {
-    request = request || {};
-    path = path || "";
+    request = {};
+    pathname = pathname || "";
     notFound(response, request, pathname);
     return;
   }
