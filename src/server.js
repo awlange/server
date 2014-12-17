@@ -51,7 +51,7 @@ var pathList = [
   [/^(\/favicon\.ico)$/, "FAV"],
   [/^(\/robots\.txt)$/, "ROBOTS"],
   [/^(\/humans\.txt)$/, "HUMANS"],
-  [/^(\/nav)$/, "NAV"]
+  [/^(\/nav)$|^(\/scroller)$/, "NAV"]
 ];
 
 var svgList = [
