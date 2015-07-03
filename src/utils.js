@@ -1,5 +1,5 @@
 /*
- *  Utilty and convenience methods
+ *  Utility and convenience methods
  *
  *  Adrian Lange 9/2014
  */
@@ -20,7 +20,7 @@ function isElementInArray(element, array) {
  * Get key for matching path regex, or return not found
  */
 var getKeyFromList = function(list, path) {
-  for (i=0; i < list.length; i++) {
+  for (var i=0; i < list.length; i++) {
     if (list[i][0].test(path)) {
       return list[i][1];
     }

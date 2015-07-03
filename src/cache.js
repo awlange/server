@@ -10,7 +10,7 @@
 
 
 function loadTextFileCache(basePath) {
-  logger.log("Loading text file cache...")
+  logger.log("Loading text file cache...");
   return {
     "index": textfile.getTextFile(basePath + "/index.html"),
     "css": textfile.getTextFile(basePath + "/css/main.css"),

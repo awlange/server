@@ -9,7 +9,7 @@
 
 var mysql = require('mysql'),
     logger = require("./logger"),
-    responder = require("./responder")
+    responder = require("./responder"),
     textfile = require("./getTextFile");
 
 
@@ -41,7 +41,7 @@ getMaxEntryId();
 
 function getEntryIdFromPathname(pathname) {
   var splitPath = pathname.split("/");
-  var id = splitPath[splitPath.length - 1]
+  var id = splitPath[splitPath.length - 1];
   if (id === "" || id === "blog") {
     return 0;
   }
@@ -126,7 +126,7 @@ function renderIndexPage(response, request, cache) {
     }
 
     var indexTmpl = cache["index"];
-    page = renderSummariesPage(indexTmpl, summaries);
+    var page = renderSummariesPage(indexTmpl, summaries);
     cache["index"] = page;
     renderResponse(response, request, "/", page);
   });

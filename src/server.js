@@ -14,7 +14,7 @@ var http = require("http"),
     logger = require("./logger"),
     responder = require("./responder"),
     renderer = require("./renderer"),
-    cacher = require("./cacher")
+    cacher = require("./cacher"),
     port = process.argv[2] || 8888,
     basePath = process.argv[3] || "defaultPath";
 

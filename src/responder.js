@@ -9,7 +9,7 @@ var logger = require("./logger"),
     fs = require("fs");
 
 // Attempt to list contents of /file and store in memory.
-var fileList = []
+var fileList = [];
 function initFileList(basePath) {
   // Add favicon because it's not in the /file directory
   fileList.push(basePath + "/favicon.ico");
