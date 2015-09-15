@@ -105,6 +105,16 @@ function forbidden(response, request, pathname) {
 }
 
 
+function redirect(response, request, pathname, code, redirect_path) {
+  // code either 301 or 302, depending on if permanent
+  response.writeHead(code, {
+    "Location": redirect_path
+  });
+  response.end();
+  logger.logReqResp(request, pathname, code);
+}
+
+
 exports.initFileList = initFileList;
 exports.simpleResponse = simpleResponse;
 exports.textFileResponse = textFileResponse;
@@ -113,3 +123,4 @@ exports.imageFileResponse = imageFileResponse;
 exports.navResponse = navResponse;
 exports.notFound = notFound;
 exports.forbidden = forbidden;
+exports.redirect = redirect;

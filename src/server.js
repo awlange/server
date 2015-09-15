@@ -124,7 +124,12 @@ http.createServer(function(request, response) {
         responder.imageFileResponse(response, request, basePath, pathname, image_cache);
         break;
       case "FILE":
-        responder.streamFileResponse(response, request, basePath + pathname);
+        // Redirect for old resume files
+        if (pathname === "/file/AdrianWLange_Resume_122914.pdf" || pathname === "/file/AWL_resume_102414.pdf") {
+          responder.redirect(response, request, basePath + pathname, 301, "/file/AdrianLangePhD_resume.pdf");
+        } else {
+          responder.streamFileResponse(response, request, basePath + pathname);
+        }
         break;
       case "FAV":
         responder.streamFileResponse(response, request, basePath + pathname);
