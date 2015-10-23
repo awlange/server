@@ -104,8 +104,8 @@ function renderBlogPage(response, request, cache, pathname) {
  * Render the index page with the 3 most recent blog article summaries
  */
 function renderIndexPage(response, request, cache) {
-  // Get 4 most recent entries
-  var mysqlQuery = "SELECT * FROM blog.entries ORDER BY date DESC LIMIT 4";
+  // Get 5 most recent entries
+  var mysqlQuery = "SELECT * FROM blog.entries ORDER BY date DESC LIMIT 5";
 
   connection.query(mysqlQuery, function(err, rows, fields) {
     if (err) throw err;
