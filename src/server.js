@@ -41,7 +41,8 @@ var image_cache = cacher.loadImgFileCache(basePath);
 var pathList = [
   [/^(\/)$/, "INDEX"],
   [/^(\/blog\/archive)$/, "ARCHIVE"],
-  [/^(\/blog)/, "ARCHIVE"],
+  [/^(\/blog)$/, "ARCHIVE"],
+  [/^(\/blog)\/\d+$/, "BLOG"],
   [/^(\/css\/main\.css)$/, "CSS"],
   [/^(\/js\/main\.js)$/, "JS"],
   [/^(\/js\/vendor\/jquery-1.11.1.min.js)$/, "JQUERY"],
