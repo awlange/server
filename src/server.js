@@ -43,9 +43,20 @@ var pathList = [
   [/^(\/blog\/archive)$/, "ARCHIVE"],
   [/^(\/blog)$/, "ARCHIVE"],
   [/^(\/blog)\/\d+$/, "BLOG"],
-  [/^(\/css\/main\.css)$/, "CSS"],
-  [/^(\/js\/main\.js)$/, "JS"],
-  [/^(\/js\/vendor\/jquery-1.11.1.min.js)$/, "JQUERY"],
+
+  // Old
+  //[/^(\/css\/main\.css)$/, "CSS"],
+  //[/^(\/js\/main\.js)$/, "JS"],
+  //[/^(\/js\/vendor\/jquery-1.11.1.min.js)$/, "JQUERY"],
+
+  // New
+  [/^(\/css\/main_new\.css)$/, "CSS"],
+  [/^(\/js\/site\.js)$/, "JS"],
+  [/^(\/js\/vendor\/jquery-2.1.4.min.js)$/, "JQUERY"],
+  [/^(\/css\/normalize\.css)$/, "NORMALIZE"],
+  [/^(\/css\/skeleton\.css)$/, "SKELETON"],
+  [/^(\/css\/spinner\.css)$/, "SPINNER"],
+
   [/\/img\/.+(?=\.svg)/, "SVG"],
   [/\/img\/.+/, "IMG"],
   [/\/file\/.+/, "FILE"],
@@ -108,6 +119,15 @@ http.createServer(function(request, response) {
         return;
       case "CSS":
         responder.simpleResponse(response, 200, "text/css", cache["css"]);
+        break;
+      case "NORMALIZE":
+        responder.simpleResponse(response, 200, "text/css", cache["normalize"]);
+        break;
+      case "SKELETON":
+        responder.simpleResponse(response, 200, "text/css", cache["skeleton"]);
+        break;
+      case "SPINNER":
+        responder.simpleResponse(response, 200, "text/css", cache["spinner"]);
         break;
       case "JS":
         responder.simpleResponse(response, 200, "application/javascript", cache["js"]);

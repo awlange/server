@@ -12,10 +12,28 @@
 function loadTextFileCache(basePath) {
   logger.log("Loading text file cache...");
   return {
-    "index":        textfile.getTextFile(basePath + "/index.html"),
-    "css":          textfile.getTextFile(basePath + "/css/main.css"),
-    "js":           textfile.getTextFile(basePath + "/js/main.js"),
-    "jquery":       textfile.getTextFile(basePath + "/js/vendor/jquery-1.11.1.min.js"),
+    // Old version
+    //"index":        textfile.getTextFile(basePath + "/index.html"),
+    //"css":          textfile.getTextFile(basePath + "/css/main.css"),
+    //"js":           textfile.getTextFile(basePath + "/js/main.js"),
+    //"jquery":       textfile.getTextFile(basePath + "/js/vendor/jquery-1.11.1.min.js"),
+    //"summaryTmpl":  textfile.getTextFile(basePath + "/blog/summaryTmpl.html"),
+    //"blogTmpl":     textfile.getTextFile(basePath + "/blog/blogTmpl.html"),
+    //"articleTmpl":  textfile.getTextFile(basePath + "/blog/articleTmpl.html"),
+
+    // New version
+    "index":        textfile.getTextFile(basePath + "/index_new.html"),
+    "css":          textfile.getTextFile(basePath + "/css/main_new.css"),
+    "normalize":    textfile.getTextFile(basePath + "/css/normalize.css"),
+    "skeleton":     textfile.getTextFile(basePath + "/css/skeleton.css"),
+    "spinner":      textfile.getTextFile(basePath + "/css/spinner.css"),
+    "js":           textfile.getTextFile(basePath + "/js/site.js"),
+    "jquery":       textfile.getTextFile(basePath + "/js/vendor/jquery-2.1.4.min.js"),
+    "summaryTmpl":  textfile.getTextFile(basePath + "/blog/summaryTmpl_new.html"),
+    "blogTmpl":     textfile.getTextFile(basePath + "/blog/blogTmpl_new.html"),
+    "articleTmpl":  textfile.getTextFile(basePath + "/blog/articleTmpl_new.html"),
+    "archiveTmpl":  textfile.getTextFile(basePath + "/blog/archiveTmpl_new.html"),
+
     "robots":       textfile.getTextFile(basePath + "/robots.txt"),
     "humans":       textfile.getTextFile(basePath + "/humans.txt"),
     "icon-home":    textfile.getTextFile(basePath + "/img/icon-home-small2.svg"),
@@ -24,11 +42,7 @@ function loadTextFileCache(basePath) {
     "icon-resume":  textfile.getTextFile(basePath + "/img/icon-resume-small2.svg"),
     "icon-contact": textfile.getTextFile(basePath + "/img/icon-contact-small.svg"),
     "icon-blog":    textfile.getTextFile(basePath + "/img/icon-blog-small2.svg"),
-    "icon-archive": textfile.getTextFile(basePath + "/img/icon-archive-small2.svg"),
-    "blogTmpl":     textfile.getTextFile(basePath + "/blog/blogTmpl.html"),
-    "articleTmpl":  textfile.getTextFile(basePath + "/blog/articleTmpl.html"),
-    "summaryTmpl":  textfile.getTextFile(basePath + "/blog/summaryTmpl.html"),
-    "archiveTmpl":  textfile.getTextFile(basePath + "/blog/archiveTmpl.html")
+    "icon-archive": textfile.getTextFile(basePath + "/img/icon-archive-small2.svg")
   };
 }
 
